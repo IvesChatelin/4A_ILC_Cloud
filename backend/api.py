@@ -11,6 +11,11 @@ app = Flask(__name__)
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 
+@app.route('/', methods=['GET'])
+def hello():
+	if request.method == 'GET':
+		return "HELLO! url api docs http://127.0.0.1:5000/api/cal/"
+
 
 
 if __name__ == '__main__':
@@ -21,4 +26,4 @@ if __name__ == '__main__':
 		else:
 			print("Passed argument not supported ! Supported argument : check_syntax")
 			exit(1)
-	app.run(debug=True)
+	app.run(debug=True, host='0.0.0.0', port=5000)

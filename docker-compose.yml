@@ -5,12 +5,13 @@ services:
     build:
       context: frontend
       dockerfile_inline: |
-        FROM node:21.6.2-alpine3.18
+        FROM node:20.11.1-alpine3.19
         WORKDIR /frontend
+        RUN npm install -g @angular/cli
+        COPY package.json package-lock.json ./
+        RUN npm ci
         COPY . /frontend
-        RUN npm install -g @angular/cli \
-            npm install
-    command: ng serve
+    command: ng serve --host 0.0.0.0
     ports:
       - "4200:4200"
 
@@ -31,7 +32,7 @@ services:
       - FLASK_APP=api.py
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_ENV=development
-    command: python api.py
+    command: flask run 
     ports:
       - "5000:5000"
     depends_on:
