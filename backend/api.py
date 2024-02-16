@@ -1,8 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
-from flask_swagger_ui import get_swaggerui_blueprint
 from datetime import datetime
-import sqlite3
 from markupsafe import escape
 import sys
 import pandas as pd

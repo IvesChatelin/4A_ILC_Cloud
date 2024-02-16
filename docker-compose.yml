@@ -1,0 +1,44 @@
+services:
+  frontend:
+    container_name: frontend
+    image: ives_ilyass_twitter/front
+    build:
+      context: frontend
+      dockerfile_inline: |
+        FROM node:21.6.2-alpine3.18
+        WORKDIR /frontend
+        COPY . /frontend
+        RUN npm install -g @angular/cli \
+            npm install
+    command: ng serve
+    ports:
+      - "4200:4200"
+
+  backend:
+    container_name: backend
+    image: ives_ilyass_twitter/api
+    build: 
+      context: backend
+      dockerfile_inline: |
+        FROM python:3.12.2-alpine3.18
+        WORKDIR /backend
+        COPY . /backend
+        RUN pip install FLASK \
+            pip install -U flask_cors \
+            pip install pandas \
+            pip install redis
+    environment:
+      - FLASK_APP=api.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_ENV=development
+    command: python api.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
