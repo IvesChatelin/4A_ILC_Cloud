@@ -11,11 +11,18 @@ app = Flask(__name__)
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 
+
+
 @app.route('/', methods=['GET'])
 def hello():
 	if request.method == 'GET':
-		return "HELLO! url api docs http://127.0.0.1:5000/api/cal/"
-
+		return "HELLO! url api docs http://127.0.0.1:5000/api"
+	
+@app.route('/', methods=['POST'])
+def getAllTweet():
+	if request.method == 'POST':
+		data = request.get_json()
+		return "HELLO! url api docs http://127.0.0.1:5000/api"
 
 
 if __name__ == '__main__':
