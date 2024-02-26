@@ -13,16 +13,7 @@ import { NgIf } from '@angular/common';
 export class AppComponent implements OnInit {
   title = 'frontend';
 
-  islike: boolean = false
-  islikeSearch: boolean = false
-  isSelectSubject: boolean = false
-  isSelectTweetFind: boolean = false
-
   ngOnInit(): void {
   }
-
-  onClickHome(){}
-
-  onclickLogout(){}
 
 }

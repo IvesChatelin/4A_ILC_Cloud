@@ -6,11 +6,12 @@ services:
       context: frontend
       dockerfile_inline: |
         FROM node:20.11.1-alpine3.19
-        WORKDIR /frontend
+        RUN mkdir /app
+        WORKDIR /app
         RUN npm install -g @angular/cli
         COPY package.json package-lock.json ./
         RUN npm ci
-        COPY . /frontend
+        COPY . /app
     command: ng serve --host 0.0.0.0
     ports:
       - "4200:4200"
@@ -22,8 +23,9 @@ services:
       context: backend
       dockerfile_inline: |
         FROM python:3.12.2-alpine3.18
-        WORKDIR /backend
-        COPY . /backend
+        RUN mkdir /app
+        WORKDIR /app
+        COPY . /app
         RUN pip install FLASK \
             pip install -U flask_cors \
             pip install pandas \
