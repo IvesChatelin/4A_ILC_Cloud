@@ -4,15 +4,7 @@ services:
     image: ives_ilyass_twitter/front
     build:
       context: frontend
-      dockerfile_inline: |
-        FROM node:20.11.1-alpine3.19
-        RUN mkdir /app
-        WORKDIR /app
-        RUN npm install -g @angular/cli
-        COPY package.json package-lock.json ./
-        RUN npm ci
-        COPY . /app
-    command: ng serve --host 0.0.0.0
+      dockerfile: Dockerfile 
     ports:
       - "4200:4200"
 
@@ -21,20 +13,7 @@ services:
     image: ives_ilyass_twitter/api
     build: 
       context: backend
-      dockerfile_inline: |
-        FROM python:3.12.2-alpine3.18
-        RUN mkdir /app
-        WORKDIR /app
-        COPY . /app
-        RUN pip install FLASK \
-            pip install -U flask_cors \
-            pip install pandas \
-            pip install redis
-    environment:
-      - FLASK_APP=api.py
-      - FLASK_RUN_HOST=0.0.0.0
-      - FLASK_ENV=development
-    command: flask run 
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     depends_on:
