@@ -147,6 +147,34 @@ def getTweetOfSubject():
             tweets.append(dict)
         return jsonify(tweets,200)
 	
+@app.route('/api/v1/like', methods=['GET'])
+def like():
+	if request.method == 'GET':
+		timestamp = request.args.get('timestamp', '')
+		username = request.args.get('author', '')
+		cmd = r.hset(
+			"liked_"+username+":"+timestamp,
+			mapping={
+				"author": username,
+				"timestamp": timestamp
+			}
+		)
+		if(cmd > 0):
+			return jsonify(r.hgetall("liked_"+username+":"+timestamp),200)
+		else:
+			return jsonify({"message":"tweet has been not liked"},500)
+	
+@app.route('/api/v1/dislike', methods=['GET'])
+def dislike():
+	if request.method == 'GET':
+		timestamp = request.args.get('timestamp', '')
+		username = request.args.get('author', '')
+		res = r.hgetall("liked_"+username+":"+timestamp)
+		if(res['timestamp'] == timestamp and res['author'] == username):
+			delete = r.delete("liked_"+username+":"+timestamp)
+			if(delete == 1):
+				return jsonify({"message":"key delete"},200)
+	
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
