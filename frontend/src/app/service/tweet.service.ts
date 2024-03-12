@@ -8,7 +8,7 @@ import { Observable, Subject } from 'rxjs';
 })
 export class TweetService {
 
-  URL_API = "http://localhost:5000/api/"
+  URL_API = "http://localhost:5000/api/v1/"
 
   constructor(private httpClient: HttpClient) { }
 

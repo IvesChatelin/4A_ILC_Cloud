@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TweetService } from '../service/tweet.service';
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -23,6 +24,7 @@ export class HomeComponent implements OnInit {
   email: string = ''
   tweets: any
   subjects: any
+  tweetFinds: any
   displayTweetOfSubject: boolean = false
   displayAllTweet: boolean = true
   subjectClicked: string = ''
@@ -36,6 +38,10 @@ export class HomeComponent implements OnInit {
     "author": new FormControl(),
     "subject": new FormControl(),
     "message": new FormControl()
+  })
+
+  searchForm = new FormGroup({
+    "value": new FormControl()
   })
 
   ngOnInit(): void {
@@ -161,6 +167,81 @@ export class HomeComponent implements OnInit {
         }
       })
     }
+  }
+
+  onClickRetweetOnSearch(tweet: any){
+    if(tweet['retweeted']){
+      this.tweetService.disretweet(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.onClickSearch()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+          if(this.displayAllTweet){
+            this.getAllTweet()
+          }
+        }
+      })
+    }else{
+      this.tweetService.retweet(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.onClickSearch()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+          if(this.displayAllTweet){
+            this.getAllTweet()
+          }
+        }
+      })
+    }
+  }
+
+  onClickLikeOnSearch(tweet: any){
+    if(tweet['liked']){
+      this.tweetService.dislike(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.onClickSearch()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+          if(this.displayAllTweet){
+            this.getAllTweet()
+          }
+        }
+      })
+    }else{
+      this.tweetService.like(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.onClickSearch()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+          if(this.displayAllTweet){
+            this.getAllTweet()
+          }
+        }
+      })
+    }
+  }
+
+  onClickSearch(){
+    console.log(this.searchForm.value.value)
+    this.tweetService.search(this.username!,this.searchForm.value.value).subscribe(res => {
+      this.tweetFinds = res[0]
+    })
   }
 
 }
