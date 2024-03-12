@@ -39,4 +39,16 @@ export class TweetService {
   dislike(username: string,timestamp: string): Observable<any>{
     return this.httpClient.get(this.URL_API+"dislike", {params: new HttpParams().set('author', username).set('timestamp', timestamp)} )
   }
+
+  retweet(username: string, timestamp: string): Observable<any>{
+    return this.httpClient.get(this.URL_API+"retweet", {params: new HttpParams().set('author', username).set('timestamp', timestamp)} )
+  }
+
+  disretweet(username: string,timestamp: string): Observable<any>{
+    return this.httpClient.get(this.URL_API+"disretweet", {params: new HttpParams().set('author', username).set('timestamp', timestamp)} )
+  }
+
+  search(username: string, value: string): Observable<any>{
+    return this.httpClient.get(this.URL_API+"search",{params: new HttpParams().set('author', username).set('value', value)})
+  }
 }

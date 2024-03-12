@@ -72,7 +72,11 @@ export class HomeComponent implements OnInit {
     this.tweetForm.setValue({author: this.authService.user['username'], subject:"", message:""})
   }
 
-  onClickHome(){}
+  onClickHome(){
+    this.displayAllTweet = true
+    this.displayTweetOfSubject = false
+    this.mytweet = false
+  }
 
   onClickSubject(subject: string){
     this.subjectClicked = subject
@@ -118,6 +122,34 @@ export class HomeComponent implements OnInit {
       })
     }else{
       this.tweetService.like(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.getAllTweet()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+        }
+      })
+    }
+  }
+
+  onClickRetweet(tweet: any){
+    if(tweet['retweeted']){
+      this.tweetService.disretweet(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.getAllTweet()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+        }
+      })
+    }else{
+      this.tweetService.retweet(this.username!, tweet['timestamp']).subscribe(res => {
         if(res[1] == 200){
           this.getAllTweet()
           if(this.displayTweetOfSubject){
