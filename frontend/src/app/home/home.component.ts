@@ -26,8 +26,9 @@ export class HomeComponent implements OnInit {
   displayTweetOfSubject: boolean = false
   displayAllTweet: boolean = true
   subjectClicked: string = ''
-  mytweet: any
   tweetOfSubject: any
+  mytweet: boolean = false
+  allMyTweet: any
 
   username = localStorage.getItem('username')
 
@@ -47,6 +48,16 @@ export class HomeComponent implements OnInit {
     this.tweetService.allTweet().subscribe(res => {
       console.log(res)
       this.tweets = res[0]
+    })
+  }
+
+  getMyTweet(){
+    this.displayAllTweet = false
+    this.displayTweetOfSubject = false
+    this.mytweet = true
+    this.tweetService.mytweet(this.username!).subscribe(res => {
+      console.log(res)
+      this.allMyTweet = res[0]
     })
   }
 
@@ -90,6 +101,34 @@ export class HomeComponent implements OnInit {
         this.getAllTweet()
       }
     })
+  }
+
+  onClickLike(tweet: any){
+    if(tweet['liked']){
+      this.tweetService.dislike(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.getAllTweet()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+        }
+      })
+    }else{
+      this.tweetService.like(this.username!, tweet['timestamp']).subscribe(res => {
+        if(res[1] == 200){
+          this.getAllTweet()
+          if(this.displayTweetOfSubject){
+            this.onClickSubject(this.subjectClicked)
+          }
+          if(this.mytweet){
+            this.getMyTweet()
+          }
+        }
+      })
+    }
   }
 
 }
