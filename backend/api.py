@@ -174,6 +174,66 @@ def dislike():
 			delete = r.delete("liked_"+username+":"+timestamp)
 			if(delete == 1):
 				return jsonify({"message":"key delete"},200)
+			
+@app.route('/api/v1/retweet', methods=['GET'])
+def retweet():
+	if request.method == 'GET':
+		timestamp = request.args.get('timestamp', '')
+		username = request.args.get('author', '')
+		cmd = r.hset(
+			"retweeted_"+username+":"+timestamp,
+			mapping={
+				"author": username,
+				"timestamp": timestamp
+			}
+		)
+		if(cmd > 0):
+			userWhoHasTweet = r.lpush("tweets:"+username, timestamp)
+			print(r.lrange("tweets:"+username, 0, -1))
+			return jsonify(r.hgetall("retweeted_"+username+":"+timestamp),200)
+	
+@app.route('/api/v1/disretweet', methods=['GET'])
+def disretweet():
+	if request.method == 'GET':
+		timestamp = request.args.get('timestamp', '')
+		username = request.args.get('author', '')
+		res = r.hgetall("retweeted_"+username+":"+timestamp)
+		if(res['timestamp'] == timestamp and res['author'] == username):
+			delete = r.delete("retweeted_"+username+":"+timestamp)
+			delt = r.lrem("tweets:"+username,0,timestamp)
+			if(delete == 1 and delt == 1):
+				return jsonify({"message":"key delete"},200)
+			
+@app.route('/api/v1/search', methods=['GET'])
+def search():
+	if request.method == 'GET':
+		timestamps = []
+		if(r.exists("tweets:"+request.args.get('value', ''))):
+			timestamps = r.lrange("tweets:"+request.args.get('value', ''),0,-1)
+			print(r.lrange("tweets:"+request.args.get('value', ''),0,-1))
+		tweets = []
+		for timestamp in timestamps:
+			tweet = r.hgetall(timestamp)
+			originAuthor = tweet.get("author")
+			tweet.update({"author":request.args.get('author', '')})
+			if(tweet.get("author") == request.args.get('value', '') or tweet.get("subject") == request.args.get('value', '')):
+				dicto = {
+					"author": originAuthor,
+					"subject": tweet.get("subject"),
+					"message": tweet.get("message"),
+					"timestamp": timestamp,
+				}
+				whoLiked = r.hgetall("liked_"+request.args.get('author', '')+":"+timestamp)
+				whoretweeted = r.hgetall("retweeted_"+request.args.get('author', '')+":"+timestamp)
+				if(len(whoLiked) > 0):
+					if(whoLiked['timestamp'] == timestamp and request.args.get('author', '') == whoLiked['author']):
+						dicto['liked'] = "true"
+				if(len(whoretweeted) > 0):
+					if(whoretweeted['timestamp'] == timestamp and request.args.get('author', '') == whoretweeted['author']):
+						dicto['retweeted'] = "false"
+				tweets.append(dicto)
+		return jsonify(tweets,200)
+
 	
 
 if __name__ == '__main__':
