@@ -11,14 +11,14 @@ app = Flask(__name__)
 # enable cors for ressource api
 CORS(app, resources={r'/api/*': {'origins': '*'}})
 
-r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+r = redis.Redis(host="127.0.0.1", port=6379, db=0, decode_responses=True)
 
 @app.route('/', methods=['GET'])
 def hello():
 	if request.method == 'GET':
 		date = datetime.today()
 		print(date.strftime("%d/%m/%Y %H:%M"))
-		return "HELLO! url api docs http://127.0.0.1:5000/api"
+		return "HELLO! url api docs http://127.0.0.1:5000/api/v1"
 	
 @app.route('/api/v1/alltweet', methods=['GET'])
 def getAllTweet():
@@ -98,29 +98,26 @@ def tweet():
 		)
 		if(tweet > 0):
 			# list of tweet
-			tweetSet = r.lpush("tweets", timestamp)
+			r.lpush("tweets", timestamp)
+			#list of subject
+			r.sadd("subjects", timestamp)
 			# list of tweet for one author
-			userWhoHasTweet = r.lpush("tweets:"+data['author'], timestamp)
+			r.lpush("tweets:"+data['author'], timestamp)
 			# list of tweet for one subject
-			subjectTweeted = r.lpush("tweets:"+data["subject"], timestamp)
+			r.lpush("tweets:"+data["subject"], timestamp)
 			return jsonify(r.hgetall(timestamp),200)
 		else:
-			delete = r.delete(timestamp)
+			r.delete(timestamp)
 			return jsonify({"message": "tweet has been not registered"}, 500)
 
 @app.route('/api/v1/allsubject', methods=['GET'])
 def getAllSubject():
 	if request.method == 'GET':
-		timestamps = r.lrange("tweets",0,-1)
+		subjects_set = r.smembers("subjects")
 		subjects = []
-		exist = False
-		for timestamp in timestamps:
-			tweet = r.hgetall(timestamp)
-			for subject in subjects:
-				if(subject == tweet.get("subject")):
-					exist = True
-			if not exist:
-				subjects.append(tweet.get("subject"))
+		for subject in subjects_set:
+			subjects.append(subject)
+		print(subjects)
 		return jsonify(subjects,200)
 	
 @app.route('/api/v1/tweetofsubject', methods=['GET'])
@@ -175,6 +172,8 @@ def dislike():
 			delete = r.delete("liked_"+username+":"+timestamp)
 			if(delete == 1):
 				return jsonify({"message":"key delete"},200)
+			else:
+				return jsonify({"message":"key has been not delete"},500)
 			
 @app.route('/api/v1/retweet', methods=['GET'])
 def retweet():
@@ -189,9 +188,12 @@ def retweet():
 			}
 		)
 		if(cmd > 0):
-			userWhoHasTweet = r.lpush("tweets:"+username, timestamp)
-			print(r.lrange("tweets:"+username, 0, -1))
+			tweet = r.hgetall(timestamp)
+			if(tweet.get("author") != username):
+				r.lpush("tweets:"+username, timestamp)
 			return jsonify(r.hgetall("retweeted_"+username+":"+timestamp),200)
+		else:
+			return jsonify({"message": "error retweet!!"},500)
 	
 @app.route('/api/v1/disretweet', methods=['GET'])
 def disretweet():
@@ -201,9 +203,12 @@ def disretweet():
 		res = r.hgetall("retweeted_"+username+":"+timestamp)
 		if(res['timestamp'] == timestamp and res['author'] == username):
 			delete = r.delete("retweeted_"+username+":"+timestamp)
-			delt = r.lrem("tweets:"+username,0,timestamp)
-			if(delete == 1 and delt == 1):
+			if(res['author'] != r.hgetall(timestamp)['author']):
+				delt = r.lrem("tweets:"+username,0,timestamp)
+			if(delete == 1):
 				return jsonify({"message":"key delete"},200)
+			else:
+				return jsonify({"message":"key has been not delete"},200)
 			
 @app.route('/api/v1/search', methods=['GET'])
 def search():
@@ -211,13 +216,39 @@ def search():
 		timestamps = []
 		if(r.exists("tweets:"+request.args.get('value', ''))):
 			timestamps = r.lrange("tweets:"+request.args.get('value', ''),0,-1)
-			print(r.lrange("tweets:"+request.args.get('value', ''),0,-1))
+		tweets = []
+		for timestamp in timestamps:
+			tweet = r.hgetall(timestamp)
+			if(tweet.get("author") == request.args.get('value', '') or tweet.get("subject") == request.args.get('value', '')):
+				dicto = {
+					"author": tweet.get("author"),
+					"subject": tweet.get("subject"),
+					"message": tweet.get("message"),
+					"timestamp": timestamp,
+				}
+				whoLiked = r.hgetall("liked_"+request.args.get('author', '')+":"+timestamp)
+				whoretweeted = r.hgetall("retweeted_"+request.args.get('author', '')+":"+timestamp)
+				if(len(whoLiked) > 0):
+					if(whoLiked['timestamp'] == timestamp and request.args.get('author', '') == whoLiked['author']):
+						dicto['liked'] = "true"
+				if(len(whoretweeted) > 0):
+					if(whoretweeted['timestamp'] == timestamp and request.args.get('author', '') == whoretweeted['author']):
+						dicto['retweeted'] = "false"
+				tweets.append(dicto)
+		return jsonify(tweets,200)
+	
+@app.route('/api/v1/mytweet', methods=['GET'])
+def mytweet():
+	if request.method == 'GET':
+		timestamps = []
+		if(r.exists("tweets:"+request.args.get('author', ''))):
+			timestamps = r.lrange("tweets:"+request.args.get('author', ''),0,-1)
 		tweets = []
 		for timestamp in timestamps:
 			tweet = r.hgetall(timestamp)
 			originAuthor = tweet.get("author")
 			tweet.update({"author":request.args.get('author', '')})
-			if(tweet.get("author") == request.args.get('value', '') or tweet.get("subject") == request.args.get('value', '')):
+			if(tweet.get("author") == request.args.get('author', '')):
 				dicto = {
 					"author": originAuthor,
 					"subject": tweet.get("subject"),
@@ -235,7 +266,6 @@ def search():
 				tweets.append(dicto)
 		return jsonify(tweets,200)
 
-	
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
@@ -245,5 +275,4 @@ if __name__ == '__main__':
 		else:
 			print("Passed argument not supported ! Supported argument : check_syntax")
 			exit(1)
-	os.system(f'python {"backend/db_test.py"}')
 	app.run(debug=True, host='0.0.0.0', port=5000)

@@ -3,12 +3,11 @@ import { HttpClient, HttpParams} from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
-  
+  providedIn: 'root' 
 })
 export class TweetService {
 
-  URL_API = "http://localhost:5000/api/v1/"
+  URL_API = "http://127.0.0.1:5000/api/v1/"
 
   constructor(private httpClient: HttpClient) { }
 
@@ -16,8 +15,8 @@ export class TweetService {
     return this.httpClient.post(this.URL_API+"tweet",data)
   }
 
-  allTweet(): Observable<any>{
-    return this.httpClient.get(this.URL_API+"alltweet")
+  allTweet(username: any): Observable<any>{
+    return this.httpClient.get(this.URL_API+"alltweet",{params: new HttpParams().set('author', username)})
   }
 
   allSubject(): Observable<any>{
@@ -29,7 +28,7 @@ export class TweetService {
   }
 
   mytweet(username: string): Observable<any>{
-    return this.httpClient.get(this.URL_API+"search",{params: new HttpParams().set('author', username).set('value', username)})
+    return this.httpClient.get(this.URL_API+"mytweet",{params: new HttpParams().set('author', username)})
   }
 
   like(username: string, timestamp: string): Observable<any>{

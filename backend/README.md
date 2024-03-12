@@ -1,6 +1,7 @@
 # API FLASK
 
 - Tweet 
+   - Description: l'api qui permet de faire un tweet
    - url : `http://127.0.0.1:5000/api/v1/tweet`
    - Methode : `POST`
    - Data : 
@@ -9,15 +10,18 @@
       - `subject` : subject of tweet
 
 - AllTweet
+   - Description: l'api qui permet d'afficher tous les tweets
    - url : `http://127.0.0.1:5000/api/v1/alltweet`
    - Methode : `GET`
    - Params : `author`
 
 - allsubject
+   - Description: l'api qui permet d'afficher tous les sujets
    - url : `http://127.0.0.1:5000/api/v1/allsubject`
    - Methode : `GET`
 
 - login
+   - Description: l'api qui permet de se connecter
    - url : `http://127.0.0.1:5000/api/v1/login`
    - Methode : `POST`
    - Data : 
@@ -25,6 +29,7 @@
       - `username` : username
 
 - register
+   - Description: l'api qui permet de s'inscrire
    - url : `http://127.0.0.1:5000/api/v1/register`
    - Methode : `POST`
    - Data : 
@@ -33,6 +38,7 @@
       - `password` : password
 
 - tweetofsubject
+   - Description: l'api qui permet d'afficher tous les tweets d'un sujet
    - url : `http://127.0.0.1:5000/api/v1/tweetofsubject`
    - Methode : `GET`
    - Params : 
@@ -40,6 +46,7 @@
       - `subject`
 
 - like
+   - Description: l'api qui permet d'enregistrer les likes
    - url : `http://127.0.0.1:5000/api/v1/like`
    - Methode : `GET`
    - Params : 
@@ -47,6 +54,7 @@
       - `timestamp`
 
 - dislike
+   - Description: l'api qui permet de supprimer les likes
    - url : `http://127.0.0.1:5000/api/v1/dislike`
    - Methode : `GET`
    - Params : 
@@ -54,6 +62,7 @@
       - `timestamp`
 
 - retweet
+   - Description: l'api qui permet de reposter un tweet
    - url : `http://127.0.0.1:5000/api/v1/retweet`
    - Methode : `GET`
    - Params : 
@@ -61,6 +70,7 @@
       - `timestamp`
 
 - retweet
+   - Description: l'api qui permet de supprimer le reposte d'un tweet
    - url : `http://127.0.0.1:5000/api/v1/disretweet`
    - Methode : `GET`
    - Params : 
@@ -68,7 +78,16 @@
       - `timestamp`
 
 - search
+   - Description: l'api qui permet de la recherche d'un tweet ou sujet
    - url : `http://127.0.0.1:5000/api/v1/search`
+   - Methode : `GET`
+   - Params : 
+      - `author`
+      - `value`
+
+- mytweet
+   - Description: l'api qui permet d'afficher tous les tweets d'un utilisateur
+   - url : `http://127.0.0.1:5000/api/v1/mytweet`
    - Methode : `GET`
    - Params : 
       - `author`

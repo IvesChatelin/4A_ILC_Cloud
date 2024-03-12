@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
 
   onClickSignIn(){
     this.authService.login(this.loginForm.value).subscribe(res => {
-      if(res[1] == 404){
+      if(res[1] != 200){
         localStorage.setItem("isLoggedIn", 'false');
         this.userNotFound = true
       }else{
@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit {
   onClickSignUp(){
     this.authService.register(this.loginForm.value).subscribe(res => {
       if(res[1] == 200){
-        this.router.navigate(['login'])
+        this.signUp = false
       }
       console.log(res)
     })

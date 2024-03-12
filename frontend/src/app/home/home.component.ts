@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit {
   }
 
   getAllTweet(){
-    this.tweetService.allTweet().subscribe(res => {
+    this.tweetService.allTweet(this.username).subscribe(res => {
       console.log(res)
       this.tweets = res[0]
     })
@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit {
   }
 
   onInitForm(){
-    this.tweetForm.setValue({author: this.authService.user['username'], subject:"", message:""})
+    this.tweetForm.setValue({author: this.username, subject:"", message:""})
   }
 
   onClickHome(){
@@ -103,12 +103,12 @@ export class HomeComponent implements OnInit {
   }
 
   onClickTweet(){
-    this.tweetForm.value.subject = "#"+this.tweetForm.value.subject
     this.tweetService.tweet(this.tweetForm.value).subscribe(res => {
       if(res[1] == 200){
         console.log(res)
         this.onInitForm()
         this.getAllTweet()
+        this.getAllSubject()
       }
     })
   }
