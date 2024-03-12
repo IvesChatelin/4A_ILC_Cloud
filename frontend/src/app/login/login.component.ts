@@ -32,11 +32,11 @@ export class LoginComponent implements OnInit {
   onClickSignIn(){
     this.authService.login(this.loginForm.value).subscribe(res => {
       if(res[1] == 404){
-        this.authService.isLoggedIn = false
+        localStorage.setItem("isLoggedIn", 'false');
         this.userNotFound = true
       }else{
-        this.authService.user = res[0]
-        this.authService.isLoggedIn = true
+        localStorage.setItem("username", res[0]['username'])
+        localStorage.setItem("isLoggedIn", 'true');
         this.router.navigate(['home'])
       }
       console.log(res)

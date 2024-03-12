@@ -23,6 +23,11 @@ export class HomeComponent implements OnInit {
   email: string = ''
   tweets: any
   subjects: any
+  displayTweetOfSubject: boolean = false
+  displayAllTweet: boolean = true
+  subjectClicked: string = ''
+  mytweet: any
+  tweetOfSubject: any
 
   username = localStorage.getItem('username')
 
@@ -58,9 +63,22 @@ export class HomeComponent implements OnInit {
 
   onClickHome(){}
 
+  onClickSubject(subject: string){
+    this.subjectClicked = subject
+    this.displayAllTweet = false
+    this.mytweet = false
+    this.displayTweetOfSubject = true
+    this.tweetService.tweetOfSubject(this.username!,subject).subscribe(res => {
+      this.tweetOfSubject = res[0]
+    })
+  }
+
   onclickLogout(){
+    this.tweets = null
+    this.subjects = null
+    localStorage.setItem("isLoggedIn", 'false');
+    localStorage.setItem("username", 'null');
     this.router.navigate(['login'])
-    this.authService.isLoggedIn = false
   }
 
   onClickTweet(){
