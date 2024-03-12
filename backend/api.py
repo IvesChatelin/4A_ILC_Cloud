@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 from flask import jsonify
 import redis
+import os
 
 app = Flask(__name__)
 
@@ -244,4 +245,5 @@ if __name__ == '__main__':
 		else:
 			print("Passed argument not supported ! Supported argument : check_syntax")
 			exit(1)
+	os.system(f'python {"backend/db_test.py"}')
 	app.run(debug=True, host='0.0.0.0', port=5000)
