@@ -121,6 +121,32 @@ def getAllSubject():
 			if not exist:
 				subjects.append(tweet.get("subject"))
 		return jsonify(subjects,200)
+	
+@app.route('/api/v1/tweetofsubject', methods=['GET'])
+def getTweetOfSubject():
+    if request.method == 'GET':
+        subject = request.args.get('subject', '')
+        timestamps = r.lrange("tweets:"+subject,0,-1)
+        tweets = []
+        for timestamp in timestamps:
+            tweet = r.hgetall(timestamp)
+            dict = {
+                "author": tweet.get("author"),
+                "subject": tweet.get("subject"),
+                "message": tweet.get("message"),
+                "timestamp": timestamp
+            }
+            whoLiked = r.hgetall("liked_"+request.args.get('author', '')+":"+timestamp)
+            whoretweeted = r.hgetall("retweeted_"+request.args.get('author', '')+":"+timestamp)
+            if(len(whoLiked) > 0):
+                if(whoLiked['timestamp'] == timestamp and request.args.get('author', '') == whoLiked['author']):
+                    dict['liked'] = "true"
+            if(len(whoretweeted) > 0):
+                if(whoretweeted['timestamp'] == timestamp and request.args.get('author', '') == whoretweeted['author']):
+                    dict['retweeted'] = "false"
+            tweets.append(dict)
+        return jsonify(tweets,200)
+	
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
