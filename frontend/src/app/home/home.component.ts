@@ -22,6 +22,9 @@ export class HomeComponent implements OnInit {
   isSelectTweetFind: boolean = false
   email: string = ''
   tweets: any
+  subjects: any
+
+  username = localStorage.getItem('username')
 
   tweetForm = new FormGroup({
     "author": new FormControl(),
@@ -30,7 +33,7 @@ export class HomeComponent implements OnInit {
   })
 
   ngOnInit(): void {
-    this.email = this.authService.user['email'];
+    this.getAllSubject()
     this.onInitForm();
     this.getAllTweet()
   }
@@ -39,6 +42,13 @@ export class HomeComponent implements OnInit {
     this.tweetService.allTweet().subscribe(res => {
       console.log(res)
       this.tweets = res[0]
+    })
+  }
+
+  getAllSubject(){
+    this.tweetService.allSubject().subscribe(res => {
+      console.log(res)
+      this.subjects = res[0]
     })
   }
 

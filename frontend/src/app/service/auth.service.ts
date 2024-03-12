@@ -7,8 +7,7 @@ import { Observable, Subject} from 'rxjs';
 })
 export class AuthService {
 
-  URL_API = "http://localhost:5000/api/"
-  isLoggedIn = false;
+  URL_API = "http://localhost:5000/api/v1/"
   user : any = {}
 
   constructor(private httpClient: HttpClient) { }

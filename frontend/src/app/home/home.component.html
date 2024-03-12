@@ -39,34 +39,9 @@
           <h4>Subject</h4>
           <hr>
           <div class="overflow-auto container-fluid" style="height: 340px;">
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
-              </div>
-            </div>
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
-              </div>
-            </div>
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
-              </div>
-            </div>
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
-              </div>
-            </div>
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
-              </div>
-            </div>
-            <div class="card mt-2" style="width: 100%;">
-              <div class="card-body" style="cursor: pointer;">
-                <h5 class="card-title">#Subject</h5>
+            <div *ngFor="let subject of subjects;" class="card mt-2" style="width: 100%;">
+              <div class="card-body" style="cursor: pointer;" (click)="onClickSubject(subject)">
+                <h5 class="card-title">{{subject}}</h5>
               </div>
             </div>
           </div>

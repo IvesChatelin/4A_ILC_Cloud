@@ -1,9 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 from datetime import datetime
-from markupsafe import escape
 import sys
-import pandas as pd
 from flask import jsonify
 import redis
 
@@ -13,12 +11,6 @@ app = Flask(__name__)
 CORS(app, resources={r'/api/*': {'origins': '*'}})
 
 r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
-#key=timestamp, value={“author”: “username”, “tweet”: ”message”, "subject": "subject"}
-#key=timestamps, values=[timestamp_1, timestamp_2, timestamp_3]
-#key=email, value={"username":"username", "password":"pwd" }
-#key=subject, value=[timestamp_1, timestamp_2, timestamp_3]
-#key=author, value=[timestamp_1, timestamp_2, timestamp_3]
-
 
 @app.route('/', methods=['GET'])
 def hello():
@@ -27,50 +19,69 @@ def hello():
 		print(date.strftime("%d/%m/%Y %H:%M"))
 		return "HELLO! url api docs http://127.0.0.1:5000/api"
 	
-@app.route('/api/alltweet', methods=['GET'])
+@app.route('/api/v1/alltweet', methods=['GET'])
 def getAllTweet():
 	if request.method == 'GET':
 		timestamps = r.lrange("tweets",0,-1)
 		tweets = []
 		for timestamp in timestamps:
 			tweet = r.hgetall(timestamp)
-			dict = {
+			dicto = {
 				"author": tweet.get("author"),
 				"subject": tweet.get("subject"),
 				"message": tweet.get("message"),
-				"timestamp": timestamp
+				"timestamp": timestamp,
 			}
-			tweets.append(dict)
+			whoLiked = r.hgetall("liked_"+request.args.get('author', '')+":"+timestamp)
+			whoretweeted = r.hgetall("retweeted_"+request.args.get('author', '')+":"+timestamp)
+			if(len(whoLiked) > 0):
+				if(whoLiked['timestamp'] == timestamp and request.args.get('author', '') == whoLiked['author']):
+					dicto['liked'] = "true"
+			if(len(whoretweeted) > 0):
+				if(whoretweeted['timestamp'] == timestamp and request.args.get('author', '') == whoretweeted['author']):
+					dicto['retweeted'] = "false"
+			tweets.append(dicto)
 		return jsonify(tweets,200)
 
 	
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/v1/login', methods=['POST'])
 def login():
 	if request.method == 'POST':
 		data = request.get_json()
 		user = r.hgetall(data["email"])
-		if(len(user) > 0):
-			return jsonify({"username": user['username'], "email":data["email"]},200)
+		if(len(user) > 0 and data['password'] == user['password']):
+			return jsonify({"username": user['username'], "email": data["email"]},200)
 		else:
 			return jsonify({"message": "user not found"}, 404)
 		
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/v1/register', methods=['POST'])
 def signUp():
 	if request.method == 'POST':
 		data = request.get_json()
-		user = r.hset(
+		if(r.exists(data["username"])):
+			return jsonify({"message": "username already exists"}, 500)
+		if(r.exists(data["email"])):
+			return jsonify({"message": "email already exists"}, 500)
+		userByName = r.hset(
+			data["username"],
+			mapping={
+				"email": data["email"],
+				"password": data["password"]
+			}
+		)
+		userByEmail = r.hset(
 			data["email"],
 			mapping={
 				"username": data["username"],
 				"password": data["password"]
 			}
 		)
-		if(user > 0):
-			return jsonify(r.hgetall(data["email"]),200)
+		if(userByName > 0 and userByEmail > 0):
+			return jsonify(r.hgetall(data["username"]),200)
 		else:
-			return jsonify({"message": "user not register"}, 400)
+			return jsonify({"message": "user is not registered"}, 500)
 		
-@app.route('/api/tweet', methods=['POST'])
+@app.route('/api/v1/tweet', methods=['POST'])
 def tweet():
 	if request.method == 'POST':
 		data = request.get_json()
@@ -88,13 +99,28 @@ def tweet():
 			# list of tweet
 			tweetSet = r.lpush("tweets", timestamp)
 			# list of tweet for one author
-			userWhoHasTweet = r.lpush(data["author"], timestamp)
+			userWhoHasTweet = r.lpush("tweets:"+data['author'], timestamp)
 			# list of tweet for one subject
-			subjectTweeted = r.lpush(data["subject"], timestamp)
-			return jsonify({"tweet": r.hgetall(timestamp)},200)
+			subjectTweeted = r.lpush("tweets:"+data["subject"], timestamp)
+			return jsonify(r.hgetall(timestamp),200)
 		else:
-			return jsonify({"message": "tweet has been not registed"}, 400)
+			delete = r.delete(timestamp)
+			return jsonify({"message": "tweet has been not registered"}, 500)
 
+@app.route('/api/v1/allsubject', methods=['GET'])
+def getAllSubject():
+	if request.method == 'GET':
+		timestamps = r.lrange("tweets",0,-1)
+		subjects = []
+		exist = False
+		for timestamp in timestamps:
+			tweet = r.hgetall(timestamp)
+			for subject in subjects:
+				if(subject == tweet.get("subject")):
+					exist = True
+			if not exist:
+				subjects.append(tweet.get("subject"))
+		return jsonify(subjects,200)
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:

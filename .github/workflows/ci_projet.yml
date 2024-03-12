@@ -1,0 +1,50 @@
+name: ci_projet
+
+on:
+  pull_request: 
+    types: [opened, reopened]
+  push:
+    branches: master
+    tags: ["v*.*.*"]
+
+jobs:
+  pull_request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: access code
+        uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v4.7.1
+      - name: install flask
+        run: pip install flask
+      - name: install flask_cors
+        run: pip install -U flask-cors
+      - name: install pandas
+        run: pip install pandas
+      - name: install redis
+        run: pip install redis
+        env:
+          FLASK_APP: backend/api.py
+          FLASK_ENV: developement
+      - run: python backend/api.py check_syntax
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: access code
+        uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v4
+      - name: install flask
+        run: pip install flask
+      - name: install flask_cors
+        run: pip install -U flask-cors
+      - name: install pandas
+        run: pip install pandas
+      - name: install redis
+        run: pip install redis
+        env:
+          FLASK_APP: backend/api.py
+          FLASK_ENV: developement
+      - run: python backend/api.py check_syntax
+

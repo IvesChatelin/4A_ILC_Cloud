@@ -19,4 +19,8 @@ export class TweetService {
   allTweet(): Observable<any>{
     return this.httpClient.get(this.URL_API+"alltweet")
   }
+
+  allSubject(): Observable<any>{
+    return this.httpClient.get(this.URL_API+"allsubject")
+  }
 }
