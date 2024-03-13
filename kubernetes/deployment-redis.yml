@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-redis
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: myTwitter
+  template:
+    metadata:
+      labels:
+        app: myTwitter
+        type: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        resources:
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 6379
+        

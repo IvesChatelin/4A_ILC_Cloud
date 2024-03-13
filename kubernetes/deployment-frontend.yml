@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mytwitter-deployment
+  name: deployment-frontend
 spec:
   replicas: 2
   strategy:
@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app: myTwitter
+        type: frontend
     spec:
       containers:
       - name: frontend
@@ -27,21 +28,4 @@ spec:
             cpu: "1000m"
         ports:
           - containerPort: 4200
-      - name: backend
-        image: ives_ilyass_twitter/api 
-        imagePullPolicy: Never
-        resources:
-          limits:
-            memory: "1000Mi"
-            cpu: "1000m"
-        ports:
-          - containerPort: 5000
-      - name: redis
-        image: redis
-        resources:
-          limits:
-            memory: "500Mi"
-            cpu: "500m"
-        ports:
-          - containerPort: 6379
         
