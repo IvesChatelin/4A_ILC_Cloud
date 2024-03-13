@@ -1,5 +1,7 @@
 # API FLASK
 
+lancer la base de données de test : `python db_test.py`
+
 - Tweet 
    - Description: l'api qui permet de faire un tweet
    - url : `http://127.0.0.1:5000/api/v1/tweet`

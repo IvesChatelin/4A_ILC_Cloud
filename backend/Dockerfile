@@ -8,5 +8,6 @@ RUN pip install FLASK \
 ENV FLASK_APP=api.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_ENV=development
+ENV REDIS_HOST=redis
 EXPOSE 5000
-CMD ["flask","run"]
+CMD ["flask", "run"]

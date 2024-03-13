@@ -11,7 +11,11 @@ app = Flask(__name__)
 # enable cors for ressource api
 CORS(app, resources={r'/api/*': {'origins': '*'}})
 
-r = redis.Redis(host="127.0.0.1", port=6379, db=0, decode_responses=True)
+REDIS_HOST = os.environ.get("REDIS_HOST")
+if(REDIS_HOST == ''):
+	REDIS_HOST = 'localhost'
+
+r = redis.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
 
 @app.route('/', methods=['GET'])
 def hello():
@@ -100,7 +104,7 @@ def tweet():
 			# list of tweet
 			r.lpush("tweets", timestamp)
 			#list of subject
-			r.sadd("subjects", timestamp)
+			r.sadd("subjects", data["subject"])
 			# list of tweet for one author
 			r.lpush("tweets:"+data['author'], timestamp)
 			# list of tweet for one subject
@@ -117,7 +121,6 @@ def getAllSubject():
 		subjects = []
 		for subject in subjects_set:
 			subjects.append(subject)
-		print(subjects)
 		return jsonify(subjects,200)
 	
 @app.route('/api/v1/tweetofsubject', methods=['GET'])

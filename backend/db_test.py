@@ -1,6 +1,9 @@
 import redis
-
-r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+import os
+REDIS_HOST = os.environ.get("REDIS_HOST")
+if(REDIS_HOST == ''):
+	REDIS_HOST = 'localhost'
+r = redis.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
 
 # users jerome
 userByName = r.hset(
@@ -62,6 +65,8 @@ tweet3 = r.hset(
 
 # list of tweet
 tweet_list = r.lpush("tweets", *["10/03/2024 14:54","08/03/2024 14:54","07/03/2024 14:54"])
+#list of subject
+tweet_list = r.sadd("subjects", *["#compte rendu","#cours de cloud compiting"])
 			
 # list of tweet for one author
 userWhoHasTweet1 = r.lpush("tweets:esirem", "10/03/2024 14:54")
@@ -73,4 +78,4 @@ subjectTweeted1 = r.lpush("tweets:#cours de cloud compiting", "10/03/2024 14:54"
 subjectTweeted2 = r.lpush("tweets:#cours de cloud compiting", "08/03/2024 14:54")
 subjectTweeted2 = r.lpush("tweets:#compte rendu", "07/03/2024 14:54")
 
-print("succès")
+print("succès défault database")
