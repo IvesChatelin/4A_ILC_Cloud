@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: service-backend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
-    app: myTwitter
-    type: backend
+    app: backend
   ports:
   - port: 5000
     targetPort: 5000
+    nodePort: 30002
+    protocol: TCP

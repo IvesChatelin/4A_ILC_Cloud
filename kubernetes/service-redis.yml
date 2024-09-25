@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: service-redis
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
-    app: myTwitter
-    type: redis
+    app: redis
   ports:
   - port: 6379
     targetPort: 6379
+    nodePort: 30003
+    protocol: TCP

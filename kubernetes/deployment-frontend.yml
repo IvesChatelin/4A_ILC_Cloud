@@ -11,12 +11,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      app: myTwitter
+      app: frontend
   template:
     metadata:
       labels:
-        app: myTwitter
-        type: frontend
+        app: frontend
     spec:
       containers:
       - name: frontend
